@@ -19,15 +19,15 @@ jobs:
         uses: actions/setup-dotnet@v3
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
-      
+
       - name: Show current directory 📁
         run: pwd && ls -R
 
       - name: Install dependencies 📂
-        run: dotnet restore ./Employee.sln
+        run: dotnet restore prabha8247/BackEnd-Development/Employee.sln
 
       - name: Build 🧱
-        run: dotnet build ./Employee.sln --configuration Release --no-restore
+        run: dotnet build prabha8247/BackEnd-Development/Employee.sln --configuration Release --no-restore
 
       - name: Test 🧪
-        run: dotnet test ./Employee.sln --configuration Release --no-build
+        run: dotnet test prabha8247/BackEnd-Development/Employee.sln --configuration Release --no-build
