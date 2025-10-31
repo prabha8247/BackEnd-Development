@@ -24,10 +24,10 @@ jobs:
         run: pwd && ls -R
 
       - name: Install dependencies 📂
-        run: dotnet restore Employee.sln
+        run: dotnet restore ./Employee.sln
 
       - name: Build 🧱
-        run: dotnet build Employee.sln --configuration Release --no-restore
+        run: dotnet build ./Employee.sln --configuration Release --no-restore
 
       - name: Test 🧪
-        run: dotnet test Employee.sln --configuration Release --no-build
+        run: dotnet test ./Employee.sln --configuration Release --no-build
