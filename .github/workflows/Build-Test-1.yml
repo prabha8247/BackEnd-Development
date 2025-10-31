@@ -1,0 +1,30 @@
+name: Build & Test - 1
+
+on:
+  push:
+    branches:
+      - dev
+
+env:
+  DOTNET_VERSION: '9.0.x'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup .NET 📦
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Install dependencies 📂
+        run: dotnet restore prabha8247/BackEnd-Development/Employee.sln
+
+      - name: Build 🧱
+        run: dotnet build prabha8247/BackEnd-Development/Employee.sln --configuration Release --no-restore
+
+      - name: Test 🧪
+        run: dotnet test prabha8247/BackEnd-Development/Employee.sln --configuration Release --no-build
