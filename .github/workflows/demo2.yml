@@ -21,10 +21,10 @@ jobs:
           dotnet-version: ${{ env.DOTNET_VERSION }}
 
       - name: Install dependencies 📂
-        run: dotnet restore Employee
+        run: dotnet restore Employee.csproj
 
       - name: Build 🧱
-        run: dotnet build Employee --configuration Release --no-restore
+        run: dotnet build Employee.csproj --configuration Release --no-restore
 
       - name: Test 🧪
-        run: dotnet test Employee --configuration Release --no-build
+        run: dotnet test Employee.csproj --configuration Release --no-build
