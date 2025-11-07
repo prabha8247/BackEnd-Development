@@ -1,4 +1,4 @@
-name: Build & Test 🧪
+name: Test for cicd 🧪
 
 on:
   push:
@@ -21,10 +21,10 @@ jobs:
           dotnet-version: ${{ env.DOTNET_VERSION }}
 
       - name: Install dependencies 📂
-        run: dotnet restore prabha8247/BackEnd-Development/Employee.sln
+        run: dotnet restore Employee.sln
 
       - name: Build 🧱
-        run: dotnet build prabha8247/BackEnd-Development/Employee.sln --configuration Release --no-restore
+        run: dotnet build Employee.sln --configuration Release --no-restore
 
       - name: Test 🧪
-        run: dotnet test prabha8247/BackEnd-Development/Employee.sln --configuration Release --no-build
+        run: dotnet test Employee.sln --configuration Release --no-build
