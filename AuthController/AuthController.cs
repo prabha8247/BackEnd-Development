@@ -1,11 +1,16 @@
 using System;
 using System.IdentityModel.Tokens.Jwt;
+using System.Linq;
 using System.Security.Claims;
 using System.Text;
+using System.Threading.Tasks;
 using Employee.DTO;
+using Employee.Models;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages.Manage;
 
 namespace Employee.AuthController;
 
@@ -14,41 +19,70 @@ namespace Employee.AuthController;
 public class AuthController : Controller
 {
     // AuthDbContext dbContext = null;
+    
+    private readonly UserManager<IdentityUser> _userManager;
+    private readonly SignInManager<IdentityUser> _signInManager;
     private readonly IConfiguration _configuration;
     
     // public AuthController() : base() {}
 
-    public AuthController(IConfiguration configuration)
+    public AuthController(IConfiguration configuration,  UserManager<IdentityUser> userManager, SignInManager<IdentityUser> signInManager)
     {
         // this.dbContext = dbContext;
-        this._configuration  = configuration;
+        _configuration  = configuration;
+        _userManager = userManager;
+        _signInManager = signInManager;
     }
 
-    [HttpPost("login")]
-    public IActionResult Login([FromBody] LoginDto loginDto)
+    [HttpPost("Login")]
+    public async Task<IActionResult> Login([FromBody] LoginDto loginDto)
     {
 
-        if (loginDto.Username == "Admin" && loginDto.Password == "123")
-        {
-            // return Ok("You are logged in!");
-            var token = GenerateToken(loginDto.Username,"Admin");
-            return Ok(new { token });
-        }
-
-        if (loginDto.Username == "User" && loginDto.Password == "123")
-        {
-            // return Ok("you logged in as user!!");
-            var token = GenerateToken(loginDto.Username,"User");
-            return Ok(new { token });
-        }
+        // this is before the commit
         
-        return Unauthorized("Invalid Username or Password");
+        // if (loginDto.Username == "Admin" && loginDto.Password == "123")
+        // {
+        //     // return Ok("You are logged in!");
+        //     var token = GenerateToken(loginDto.Username,"Admin");
+        //     return Ok(new { token });
+        // }
+        //
+        // if (loginDto.Username == "User" && loginDto.Password == "123")
+        // {
+        //     // return Ok("you logged in as user!!");
+        //     var token = GenerateToken(loginDto.Username,"User");
+        //     return Ok(new { token });
+        // }
+        //
+        // return Unauthorized("Invalid Username or Password");
+        
+        var user = await _userManager.FindByNameAsync(loginDto.Username);
+        if (user == null) return Unauthorized("Username is incorrect");
+        var checkPassword = await _userManager.CheckPasswordAsync(user, loginDto.Password);
+        if (!checkPassword) return Unauthorized("password is incorrect");
+        
+        var roles = await _userManager.GetRolesAsync(user);
+        var token = GenerateToken(loginDto.Username, roles.FirstOrDefault());
+        return Ok(new { token });
+
     }
     
-    [HttpGet("PublicEndpoint")]
-    public IActionResult PublicEndpoint()
+    [HttpPost("RegisterUser")]
+    public async Task<IActionResult> RegisterUser([FromBody] User pUser)
     {
-        return Ok("This endpoint is public. No login required.");
+        if (pUser == null) 
+            throw new ArgumentNullException(nameof(pUser));
+        
+        var user = new IdentityUser {UserName = pUser.Username, Email = pUser.Email};
+        var  result = await _userManager.CreateAsync(user, pUser.Password);
+
+        if (result.Succeeded)
+        {
+            await _userManager.AddToRoleAsync(user, pUser.Role);
+            return Ok("Data registration successful.");
+        }
+        
+        return BadRequest(result.Errors);
     }
 
     public string GenerateToken(string username, string role)
